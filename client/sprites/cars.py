@@ -20,7 +20,7 @@ class Car(pygame.sprite.Sprite):
 
         self.world_x = float(x)
         self.world_y = float(y)
-        self.angle = 0
+        self.angle = 180
         self.speed = 0
 
         self.max_speed = 15

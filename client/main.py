@@ -3,9 +3,9 @@ import asyncio
 import json
 import sys
 import os
+
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-# Импорты из твоей папки sprites
 from sprites.track import Background
 from sprites.cars import Car
 
@@ -14,12 +14,12 @@ HEIGHT = 720
 FPS = 60
 SERVER_URL = "ws://localhost:5555"
 
-# --- СТЕЛС-ИМПОРТ ДЛЯ БРАУЗЕРА ---
 IS_WEB = sys.platform == 'emscripten'
 if IS_WEB:
-    js = __import__('js')
-    pyo_ffi = __import__('pyo' + 'dide.ffi')
-    create_proxy = getattr(pyo_ffi, 'create_proxy')
+    import pyodide
+    import js
+
+    create_proxy = pyodide.ffi.create_proxy
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -27,8 +27,19 @@ pygame.display.set_caption("MTFormula - Web")
 clock = pygame.time.Clock()
 
 
+# --- МАТЕМАТИКА ИНТЕРПОЛЯЦИИ ---
+def lerp(a, b, t):
+    """Линейная интерполяция координат"""
+    return a + (b - a) * t
+
+
+def lerp_angle(a, b, t):
+    """Интерполяция углов по кратчайшему пути (чтобы не крутило через весь круг)"""
+    diff = (b - a + 180) % 360 - 180
+    return (a + diff * t) % 360
+
+
 def draw_remote_car(surface, x, y, angle, camera_x, camera_y, original_image):
-    """Отрисовка машин других игроков"""
     rotated_image = pygame.transform.rotate(original_image, angle)
     rect = rotated_image.get_rect(center=(int(x), int(y)))
     rect.x -= camera_x
@@ -38,9 +49,11 @@ def draw_remote_car(surface, x, y, angle, camera_x, camera_y, original_image):
 
 async def main():
     background = Background(zoom=8.0)
-    player_car = Car(1250, 840)
+    player_car = Car(12205, 9382)
 
+    # other_players будет хранить: { "id": {"current": {...}, "target": {...}} }
     other_players = {}
+    my_id = None
     ws = None
 
     if IS_WEB:
@@ -48,16 +61,47 @@ async def main():
             ws = js.WebSocket.new(SERVER_URL)
 
             def on_message(event):
-                nonlocal other_players
-                other_players = json.loads(event.data)
+                nonlocal other_players, my_id
+                data = json.loads(event.data)
+
+                # Инициализация (сервер выдал нам ID)
+                if data.get("type") == "init":
+                    my_id = str(data["id"])
+
+                # Пришел тик с сервера
+                elif data.get("type") == "update":
+                    players_data = data.get("players", {})
+                    for pid, pdata in players_data.items():
+                        if pid == my_id:
+                            continue  # Себя не интерполируем и не рисуем дважды
+
+                        if pid not in other_players:
+                            # Новый игрок
+                            other_players[pid] = {
+                                "current": pdata.copy(),
+                                "target": pdata.copy()
+                            }
+                        else:
+                            # Обновляем целевую точку для интерполяции
+                            other_players[pid]["target"] = pdata
+
+                    # Очистка отключившихся игроков
+                    disconnected = set(other_players.keys()) - set(players_data.keys())
+                    for pid in disconnected:
+                        del other_players[pid]
 
             ws.onmessage = create_proxy(on_message)
             print("Ожидание подключения к мультиплееру...")
         except Exception as e:
             print("Игра оффлайн. Ошибка сети:", e)
 
+    # Таймер отправки данных (чтобы не спамить 60 раз в секунду)
+    last_send_time = 0
+    SEND_INTERVAL = 1000 // 20  # Отправляем 20 раз в секунду (каждые 50мс)
+
     running = True
     while running:
+        current_time = pygame.time.get_ticks()
         clock.tick(FPS)
         keys = pygame.key.get_pressed()
 
@@ -65,10 +109,10 @@ async def main():
             if event.type == pygame.QUIT:
                 running = False
 
+        # --- ЛОГИКА ИГРОКА ---
         dx, dy = player_car.update(keys)
         player_car.move(dx, dy)
 
-        # Выезд на траву
         check_x = max(0, min(int(player_car.world_x), background.rect.width - 1))
         check_y = max(0, min(int(player_car.world_y), background.rect.height - 1))
         color_under = background.image.get_at((check_x, check_y))
@@ -77,28 +121,45 @@ async def main():
             player_car.move(-dx, -dy)
             player_car.speed = 0
 
-            # Отправка координат
+        # --- СЕТЬ: ОТПРАВКА ---
         if IS_WEB and ws and getattr(ws, 'readyState', 0) == 1:
-            payload = {"x": player_car.world_x, "y": player_car.world_y, "angle": player_car.angle}
-            ws.send(json.dumps(payload))
+            if current_time - last_send_time > SEND_INTERVAL:
+                payload = {
+                    "x": player_car.world_x,
+                    "y": player_car.world_y,
+                    "angle": player_car.angle
+                }
+                ws.send(json.dumps(payload))
+                last_send_time = current_time
 
+        # --- СЕТЬ: ИНТЕРПОЛЯЦИЯ ОППОНЕНТОВ ---
+        # Сглаживаем движение на 20% каждый кадр (подбирается экспериментально)
+        lerp_factor = 0.2
+        for pid, pdata in other_players.items():
+            curr = pdata["current"]
+            targ = pdata["target"]
+
+            curr["x"] = lerp(curr["x"], targ["x"], lerp_factor)
+            curr["y"] = lerp(curr["y"], targ["y"], lerp_factor)
+            curr["angle"] = lerp_angle(curr["angle"], targ["angle"], lerp_factor)
+
+        # --- КАМЕРА И ОТРИСОВКА ---
         camera_x = player_car.world_x - WIDTH // 2
         camera_y = player_car.world_y - HEIGHT // 2
 
-        # Отрисовка
         screen.fill((0, 0, 0))
         background.draw(screen, camera_x, camera_y)
 
         for pid, pdata in other_players.items():
+            curr = pdata["current"]
             draw_remote_car(
-                screen, pdata['x'], pdata['y'], pdata['angle'],
+                screen, curr['x'], curr['y'], curr['angle'],
                 camera_x, camera_y, player_car.original_image
             )
 
         player_car.draw(screen, camera_x, camera_y)
         pygame.display.update()
 
-        # Тик для WebAssembly
         await asyncio.sleep(0)
 
 

@@ -2,6 +2,8 @@ import pygame
 import asyncio
 import json
 import sys
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Импорты из твоей папки sprites
 from sprites.track import Background

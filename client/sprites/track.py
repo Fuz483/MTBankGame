@@ -3,7 +3,8 @@ import pygame
 class Background(pygame.sprite.Sprite):
     def __init__(self, zoom=8.0):
         super().__init__()
-        self.image = pygame.image.load("assets/background.png").convert_alpha()
+        # Используем правильное имя файла
+        self.image = pygame.image.load("assets/background.jpg").convert_alpha()
         w = int(self.image.get_width() * zoom)
         h = int(self.image.get_height() * zoom)
         self.image = pygame.transform.scale(self.image, (w, h))

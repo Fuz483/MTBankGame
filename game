@@ -550,7 +550,7 @@ def draw_ui():
     y_offset += 70
 
     current_level, xp_current, xp_needed = get_level_progress(experience)
-    profile_bg = pygame.Rect(PANEL_OFFSET_X, y_offset - 8, PANEL_WIDTH, 70)
+    profile_bg = pygame.Rect(PANEL_OFFSET_X, y_offset - 16, PANEL_WIDTH, 110)
     pygame.draw.rect(screen, (32, 36, 48), profile_bg, border_radius=10)
     pygame.draw.rect(screen, (88, 95, 115), profile_bg, 2, border_radius=10)
 
@@ -561,13 +561,13 @@ def draw_ui():
     screen.blit(profile_shadow, shadow_rect)
     screen.blit(profile_text, profile_rect)
     next_xp_text = font_small.render(f"Next level: {xp_needed} XP", True, LIGHT_GRAY)
-    next_xp_rect = next_xp_text.get_rect(center=(panel_center_x, y_offset + 40))
+    next_xp_rect = next_xp_text.get_rect(center=(panel_center_x, y_offset + 36))
     screen.blit(next_xp_text, next_xp_rect)
     y_offset += 45
 
-    bar_width = PANEL_WIDTH
+    bar_width = PANEL_WIDTH - 20
     bar_height = 30
-    bar_x = PANEL_OFFSET_X
+    bar_x = PANEL_OFFSET_X + 10
     bar_y = y_offset
 
     exp_bg = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
@@ -576,8 +576,10 @@ def draw_ui():
     exp_percentage = xp_current / xp_needed if xp_needed > 0 else 0
     fill_width = int(bar_width * exp_percentage)
     if fill_width > 0:
-        inner_width = max(2, fill_width - 4)
-        pygame.draw.rect(screen, ACCENT_COLOR, (bar_x + 2, bar_y + 2, inner_width, bar_height - 4), border_radius=12)
+        # Create rounded fill surface
+        fill_surface = pygame.Surface((fill_width, bar_height), pygame.SRCALPHA)
+        pygame.draw.rect(fill_surface, ACCENT_COLOR, (0, 0, fill_width, bar_height), border_radius=15)
+        screen.blit(fill_surface, (bar_x, bar_y))
 
     pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_width, bar_height), 3, border_radius=15)
 

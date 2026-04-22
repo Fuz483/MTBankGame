@@ -134,7 +134,7 @@ class TrackMap:
     """Loads the track image, scales it, and provides off-road detection."""
 
     def __init__(self, zoom: float = MAP_ZOOM):
-        path = os.path.join('assets', 'background.jpg')
+        path = os.path.join('', 'assets/background.jpg')
         raw  = pygame.image.load(path).convert()
         w    = int(raw.get_width()  * zoom)
         h    = int(raw.get_height() * zoom)

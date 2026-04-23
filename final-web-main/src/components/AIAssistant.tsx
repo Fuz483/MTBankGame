@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, Loader as Loader2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import Groq from 'groq-sdk';
 
@@ -24,7 +24,7 @@ export default function AIAssistant() {
   const { showToast } = useApp();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Здравствуйте! Я AI-ассистент МТБанка. Чем могу помочь? Могу рассказать о вкладах, кредитах, акциях, курсах валют или помочь с навигацией по приложению. 😊' }
+    { role: 'assistant', content: 'Здравствуйте! Я AI-ассистент МТБанка. Чем могу помочь? Могу рассказать о вкладах, кредитах, акциях, курсах валют или помочь с навигацией по приложению.' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -49,7 +49,7 @@ export default function AIAssistant() {
   const sendMessage = async () => {
     if (!input.trim()) return;
     if (!apiKey) {
-      showToast('⚠️ API ключ не настроен. Добавьте VITE_GROQ_API_KEY в .env');
+      showToast('API ключ не настроен. Добавьте VITE_GROQ_API_KEY в .env');
       return;
     }
 
@@ -76,18 +76,18 @@ export default function AIAssistant() {
       });
 
       const reply = chatCompletion.choices[0]?.message?.content || 'Извините, не могу ответить на этот вопрос. Пожалуйста, перефразируйте или обратитесь в поддержку.';
-      
+
       setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
     } catch (error: any) {
       console.error('Groq API error:', error);
       let errorMessage = 'Ошибка соединения. Попробуйте позже.';
       if (error.message?.includes('API key')) {
-        errorMessage = '❌ Неверный API ключ. Проверьте VITE_GROQ_API_KEY в .env';
+        errorMessage = 'Неверный API ключ. Проверьте VITE_GROQ_API_KEY в .env';
       } else if (error.message?.includes('rate limit')) {
-        errorMessage = '⚠️ Превышен лимит запросов. Подождите немного.';
+        errorMessage = 'Превышен лимит запросов. Подождите немного.';
       }
       showToast(errorMessage);
-      setMessages(prev => [...prev, { role: 'assistant', content: `⚠️ ${errorMessage}` }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
     } finally {
       setLoading(false);
     }
@@ -112,7 +112,7 @@ export default function AIAssistant() {
       {/* Кнопка-поплавок */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-[#1e6fdf] to-[#0a4a8f] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 group"
+        className="fixed bottom-6 right-6 z-50 bg-[#0021F3] text-white p-4 rounded-full hover:bg-blue-700 transition-all duration-200 hover:scale-105 active:scale-95 group"
       >
         <MessageCircle size={24} className="group-hover:rotate-12 transition-transform" />
       </button>
@@ -120,28 +120,28 @@ export default function AIAssistant() {
       {/* Модальное окно чата */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadein">
-          <div className="bg-white rounded-3xl w-full max-w-md h-[600px] flex flex-col shadow-2xl overflow-hidden">
+          <div className="bg-[#010615] border border-white/10 rounded-3xl w-full max-w-md h-[600px] flex flex-col overflow-hidden">
             {/* Header */}
-            <div className="bg-gradient-to-r from-[#0a2b4e] to-[#1a4a7e] px-5 py-4 flex justify-between items-center">
+            <div className="bg-gradient-to-r from-[#010615] to-[#071D49] border-b border-white/10 px-5 py-4 flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-[#f5a623] rounded-xl flex items-center justify-center">
-                  <Bot size={18} className="text-[#0a2b4e]" />
+                <div className="w-8 h-8 bg-[#0021F3] rounded-xl flex items-center justify-center">
+                  <Bot size={18} className="text-white" />
                 </div>
                 <div>
                   <h3 className="text-white font-bold">AI Банковский ассистент</h3>
-                  <p className="text-white/50 text-xs">MTBank · Инновации</p>
+                  <p className="text-white/40 text-xs">MTBank · Инновации</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-white/70 hover:text-white p-1 rounded-full transition-colors"
+                className="text-white/60 hover:text-white p-1 rounded-full transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#010615]">
               {messages.filter(m => m.role !== 'system').map((msg, idx) => (
                 <div
                   key={idx}
@@ -150,8 +150,8 @@ export default function AIAssistant() {
                   <div
                     className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                       msg.role === 'user'
-                        ? 'bg-[#1e6fdf] text-white rounded-br-sm'
-                        : 'bg-white border border-gray-100 text-gray-700 rounded-bl-sm shadow-sm'
+                        ? 'bg-[#0021F3] text-white rounded-br-sm'
+                        : 'bg-white/5 border border-white/5 text-white/80 rounded-bl-sm'
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
@@ -160,10 +160,10 @@ export default function AIAssistant() {
               ))}
               {loading && (
                 <div className="flex justify-start">
-                  <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-sm">
+                  <div className="bg-white/5 border border-white/5 rounded-2xl rounded-bl-sm px-4 py-2.5">
                     <div className="flex items-center gap-2">
-                      <Loader2 size={14} className="animate-spin text-[#1e6fdf]" />
-                      <span className="text-sm text-gray-400">Ассистент печатает...</span>
+                      <Loader2 size={14} className="animate-spin text-[#0021F3]" />
+                      <span className="text-sm text-white/40">Ассистент печатает...</span>
                     </div>
                   </div>
                 </div>
@@ -172,13 +172,13 @@ export default function AIAssistant() {
             </div>
 
             {/* Quick questions */}
-            <div className="px-4 py-2 border-t border-gray-100 bg-white">
+            <div className="px-4 py-2 border-t border-white/10 bg-[#010615]">
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {quickQuestions.map((q, i) => (
                   <button
                     key={i}
                     onClick={() => setInput(q)}
-                    className="flex-shrink-0 text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full transition-colors"
+                    className="flex-shrink-0 text-xs bg-white/5 hover:bg-white/10 text-white/60 px-3 py-1.5 rounded-full transition-colors"
                   >
                     {q}
                   </button>
@@ -187,26 +187,26 @@ export default function AIAssistant() {
             </div>
 
             {/* Input */}
-            <div className="p-4 border-t border-gray-100 bg-white">
+            <div className="p-4 border-t border-white/10 bg-[#010615]">
               <div className="flex gap-2">
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Задайте вопрос по банковским услугам..."
-                  className="flex-1 border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-[#1e6fdf] focus:ring-1 focus:ring-[#1e6fdf] transition-all"
+                  className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#0021F3] transition-all"
                   disabled={loading}
                 />
                 <button
                   onClick={sendMessage}
                   disabled={loading || !input.trim()}
-                  className="bg-[#1e6fdf] text-white p-3 rounded-2xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-[#0021F3] text-white p-3 rounded-2xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send size={18} />
                 </button>
               </div>
-              <p className="text-[10px] text-gray-300 text-center mt-2">
-                
+              <p className="text-[10px] text-white/20 text-center mt-2">
+
               </p>
             </div>
           </div>

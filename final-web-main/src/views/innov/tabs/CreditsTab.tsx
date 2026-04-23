@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DollarSign, ChevronRight, X, Calculator, CheckCircle } from 'lucide-react';
+import { DollarSign, ChevronRight, X, Calculator, CircleCheck as CheckCircle } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { ProductItem } from '../../../types';
 
@@ -28,76 +28,76 @@ export default function CreditsTab() {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-4">
-        <DollarSign size={18} className="text-[#1e6fdf]" />
-        <h2 className="font-bold text-gray-800 text-lg">Кредитные продукты</h2>
+        <DollarSign size={18} className="text-[#0021F3]" />
+        <h2 className="font-bold text-white text-lg">Кредитные продукты</h2>
       </div>
 
       {credits.map((c, i) => (
         <div
           key={i}
           onClick={() => setSelected(c)}
-          className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:border-[#1e6fdf] hover:shadow-md transition-all duration-200 group"
+          className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:border-[#0021F3] hover:bg-white/10 transition-all duration-200 group"
         >
-          <div className="flex-shrink-0 w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-[#1e6fdf]">
+          <div className="flex-shrink-0 w-12 h-12 bg-[#0021F3]/10 rounded-xl flex items-center justify-center text-[#0021F3]">
             <DollarSign size={22} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-gray-900">{c.name}</span>
-              {c.badge && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{c.badge}</span>}
+              <span className="font-semibold text-white">{c.name}</span>
+              {c.badge && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#0021F3]/20 text-[#0021F3]">{c.badge}</span>}
             </div>
-            <p className="text-sm text-gray-500 mt-0.5">{c.short}</p>
+            <p className="text-sm text-white/60 mt-0.5">{c.short}</p>
           </div>
-          {c.rate && <span className="text-[#1e6fdf] font-bold text-lg flex-shrink-0">{c.rate}</span>}
-          <ChevronRight size={18} className="text-gray-300 group-hover:text-[#1e6fdf] transition-colors flex-shrink-0" />
+          {c.rate && <span className="text-[#0021F3] font-bold text-lg flex-shrink-0">{c.rate}</span>}
+          <ChevronRight size={18} className="text-white/40 group-hover:text-[#0021F3] transition-colors flex-shrink-0" />
         </div>
       ))}
 
       {selected && (
         <div className="fixed inset-0 bg-black/50 z-40 flex items-end sm:items-center justify-center p-4" onClick={() => setSelected(null)}>
-          <div className="bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className="bg-[#010615] border border-white/10 rounded-3xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h3 className="font-bold text-xl text-gray-900">{selected.name}</h3>
-                <div className="text-[#1e6fdf] font-bold text-2xl mt-1">{selected.rate} годовых</div>
+                <h3 className="font-bold text-xl text-white">{selected.name}</h3>
+                <div className="text-[#0021F3] font-bold text-2xl mt-1">{selected.rate} годовых</div>
               </div>
-              <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-700 p-1"><X size={20} /></button>
+              <button onClick={() => setSelected(null)} className="text-white/40 hover:text-white p-1"><X size={20} /></button>
             </div>
-            <p className="text-gray-600 leading-relaxed mb-4">{selected.full}</p>
+            <p className="text-white/60 leading-relaxed mb-4">{selected.full}</p>
 
-            <div className="bg-gray-50 rounded-2xl p-4 mb-4">
-              <div className="flex items-center gap-2 mb-3 text-gray-700 font-semibold">
+            <div className="bg-white/5 rounded-2xl p-4 mb-4">
+              <div className="flex items-center gap-2 mb-3 text-white font-semibold">
                 <Calculator size={16} />
                 <span>Расчёт платежа</span>
               </div>
               <div className="flex gap-3 mb-3">
                 <div className="flex-1">
-                  <label className="text-xs text-gray-500 mb-1 block">Сумма (BYN)</label>
-                  <input type="number" value={amount} onChange={e => setAmount(e.target.value)} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm" />
+                  <label className="text-xs text-white/60 mb-1 block">Сумма (BYN)</label>
+                  <input type="number" value={amount} onChange={e => setAmount(e.target.value)} className="w-full bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-[#0021F3] rounded-xl px-3 py-2 text-sm outline-none" />
                 </div>
                 <div className="flex-1">
-                  <label className="text-xs text-gray-500 mb-1 block">Срок (мес.)</label>
-                  <input type="number" value={months} onChange={e => setMonths(e.target.value)} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm" />
+                  <label className="text-xs text-white/60 mb-1 block">Срок (мес.)</label>
+                  <input type="number" value={months} onChange={e => setMonths(e.target.value)} className="w-full bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-[#0021F3] rounded-xl px-3 py-2 text-sm outline-none" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white rounded-xl p-3 text-center">
-                  <div className="text-xs text-gray-400">Ежемесячно</div>
-                  <div className="text-xl font-bold text-[#1e6fdf]">{monthly.toFixed(2)} BYN</div>
+                <div className="bg-white/5 rounded-xl p-3 text-center">
+                  <div className="text-xs text-white/40">Ежемесячно</div>
+                  <div className="text-xl font-bold text-[#0021F3]">{monthly.toFixed(2)} BYN</div>
                 </div>
-                <div className="bg-white rounded-xl p-3 text-center">
-                  <div className="text-xs text-gray-400">Всего с %</div>
-                  <div className="text-xl font-bold text-gray-700">{total.toFixed(2)} BYN</div>
+                <div className="bg-white/5 rounded-xl p-3 text-center">
+                  <div className="text-xs text-white/40">Всего с %</div>
+                  <div className="text-xl font-bold text-white">{total.toFixed(2)} BYN</div>
                 </div>
               </div>
             </div>
 
             <div className="mb-4">
-              <div className="text-sm font-semibold text-gray-700 mb-2">Требования:</div>
+              <div className="text-sm font-semibold text-white mb-2">Требования:</div>
               <div className="space-y-1.5">
                 {requirements.map((r, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle size={14} className="text-green-500 flex-shrink-0" />
+                  <div key={i} className="flex items-center gap-2 text-sm text-white/60">
+                    <CheckCircle size={14} className="text-emerald-400 flex-shrink-0" />
                     {r}
                   </div>
                 ))}
@@ -107,11 +107,11 @@ export default function CreditsTab() {
             <div className="flex gap-3">
               <button
                 onClick={() => { showToast(`Заявка на «${selected.name}» принята`); setSelected(null); }}
-                className="flex-1 bg-[#1e6fdf] text-white font-semibold py-3 rounded-2xl hover:bg-blue-700 transition-colors"
+                className="flex-1 bg-[#0021F3] text-white font-semibold py-3 rounded-2xl hover:bg-blue-700 transition-colors"
               >
                 {selected.btn}
               </button>
-              <button onClick={() => setSelected(null)} className="px-4 border border-gray-200 rounded-2xl text-gray-500 hover:bg-gray-50 transition-colors">
+              <button onClick={() => setSelected(null)} className="px-4 border border-white/10 rounded-2xl text-white/60 hover:bg-white/10 transition-colors">
                 Закрыть
               </button>
             </div>

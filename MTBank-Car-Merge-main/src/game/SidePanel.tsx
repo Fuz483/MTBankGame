@@ -1,10 +1,8 @@
 // SidePanel.tsx - ИСПРАВЛЕННЫЙ
-import { useState } from 'react';  // Убрали React, оставили только useState
 import { canSpawn, getLevelProgress } from './logic';  // getLevelProgress теперь экспортируется
 import { MTBANK_THEME, CAR_PROPERTIES } from './types';
 import type { GameState } from './types';
 import type { GameMessage } from './useGame';
-import MTShop from './MTShop';
 
 interface SidePanelProps {
   state: GameState;
@@ -55,11 +53,10 @@ function XPBar({ current, needed }: { current: number; needed: number }) {
   );
 }
 
-export default function SidePanel({ state, messages, onSpawn, onReset, onStateChange }: SidePanelProps) {
+export default function SidePanel({ state, messages, onSpawn, onReset, onStateChange: _onStateChange }: SidePanelProps) {
   const { level, current, needed } = getLevelProgress(state.experience);
   const ready = canSpawn(state.grid);
-  const [showShop, setShowShop] = useState(false);
-  
+
   const lockedCarsCount = Object.keys(CAR_PROPERTIES).filter(
     l => {
       const levelNum = parseInt(l);
@@ -81,9 +78,16 @@ export default function SidePanel({ state, messages, onSpawn, onReset, onStateCh
           gap: 16,
         }}
       >
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 20, fontWeight: 800, color: MTBANK_THEME.textPrimary }}>MTBANK RACE</div>
-          <div style={{ fontSize: 10, color: MTBANK_THEME.textSecondary }}>MERGE & UPGRADE</div>
+        <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+          <svg viewBox="0 0 32 32" width="32" height="32">
+            <circle cx="16" cy="16" r="16" fill="#0021F3"/>
+            <path d="M7 21V11h3l3 5.5 3-5.5h3v10h-3V16l-2.2 4.5h-1.6L13 16v5H7z" fill="white"/>
+            <path d="M22 11h3v10h-3V11z" fill="#F84B36"/>
+          </svg>
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: MTBANK_THEME.textPrimary }}>МТБанк</div>
+            <div style={{ fontSize: 10, color: MTBANK_THEME.textSecondary }}>MERGE &amp; UPGRADE</div>
+          </div>
         </div>
 
         <div
@@ -91,15 +95,14 @@ export default function SidePanel({ state, messages, onSpawn, onReset, onStateCh
             textAlign: 'center',
             padding: '8px 12px',
             background: MTBANK_THEME.primaryDark,
-            border: `1px solid ${MTBANK_THEME.gold}`,
+            border: `1px solid #F84B36`,
             borderRadius: 30,
             display: 'flex',
             justifyContent: 'center',
             gap: 8,
           }}
         >
-          <span>💰</span>
-          <span style={{ fontSize: 20, fontWeight: 800, color: MTBANK_THEME.gold }}>{state.mtCoins}</span>
+          <span style={{ fontSize: 20, fontWeight: 800, color: '#F84B36' }}>{state.mtCoins}</span>
           <span style={{ fontSize: 10, color: MTBANK_THEME.textSecondary }}>MTC</span>
         </div>
 
@@ -117,26 +120,13 @@ export default function SidePanel({ state, messages, onSpawn, onReset, onStateCh
               cursor: ready ? 'pointer' : 'not-allowed',
             }}
           >
-            + NEW CAR
-          </button>
-          <button
-            onClick={() => setShowShop(true)}
-            style={{
-              padding: '12px 16px',
-              background: `linear-gradient(135deg, ${MTBANK_THEME.gold}, #ffb300)`,
-              border: 'none',
-              borderRadius: 10,
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            🏪 SHOP
+            НОВЫЙ БОЛИД
           </button>
         </div>
 
         {lockedCarsCount > 0 && (
-          <div style={{ textAlign: 'center', fontSize: 10, color: MTBANK_THEME.gold }}>
-            🔒 {lockedCarsCount} cars locked
+          <div style={{ textAlign: 'center', fontSize: 10, color: '#F84B36' }}>
+            {lockedCarsCount} cars locked
           </div>
         )}
 
@@ -154,20 +144,20 @@ export default function SidePanel({ state, messages, onSpawn, onReset, onStateCh
         </div>
 
         <div style={{ padding: 12, background: MTBANK_THEME.primaryDark, borderRadius: 12 }}>
-          <div style={{ textAlign: 'center', fontSize: 22, fontWeight: 900, color: MTBANK_THEME.gold }}>
+          <div style={{ textAlign: 'center', fontSize: 22, fontWeight: 900, color: '#F84B36' }}>
             LEVEL {level}
           </div>
           <XPBar current={current} needed={needed} />
         </div>
 
         <div style={{ textAlign: 'center', fontSize: 11, color: MTBANK_THEME.textSecondary }}>
-          Total XP: <span style={{ color: MTBANK_THEME.gold }}>{state.experience}</span>
+          Total XP: <span style={{ color: '#F84B36' }}>{state.experience}</span>
         </div>
 
         <div style={{ padding: 12, background: MTBANK_THEME.primaryDark, borderRadius: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
             <span style={{ fontSize: 9, color: MTBANK_THEME.accent }}>L-CLICK</span>
-            <span style={{ fontSize: 10, color: MTBANK_THEME.textSecondary }}>Select & Merge</span>
+            <span style={{ fontSize: 10, color: MTBANK_THEME.textSecondary }}>Select &amp; Merge</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
             <span style={{ fontSize: 9, color: MTBANK_THEME.accent }}>R-CLICK</span>
@@ -194,17 +184,6 @@ export default function SidePanel({ state, messages, onSpawn, onReset, onStateCh
         </button>
       </div>
 
-      {showShop && (
-        <MTShop 
-          state={state} 
-          onPurchase={(newState) => {
-            onStateChange(newState);
-            setShowShop(false);
-          }}
-          onClose={() => setShowShop(false)}
-        />
-      )}
-
       <div style={{ position: 'fixed', bottom: 40, left: '50%', transform: 'translateX(-50%)', zIndex: 100 }}>
         {messages.map(msg => (
           <div
@@ -212,9 +191,9 @@ export default function SidePanel({ state, messages, onSpawn, onReset, onStateCh
             style={{
               padding: '10px 28px',
               background: MTBANK_THEME.primaryDark,
-              border: `2px solid ${MTBANK_THEME.gold}`,
+              border: `2px solid #F84B36`,
               borderRadius: 24,
-              color: MTBANK_THEME.gold,
+              color: '#F84B36',
               fontWeight: 800,
               animation: 'fadeUp 2s ease forwards',
             }}

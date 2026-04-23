@@ -8,7 +8,7 @@ export default function Toast() {
         toastMsg ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
       }`}
     >
-      <div className="bg-[#0f1e2d] text-white px-6 py-3 rounded-full shadow-2xl text-sm font-medium whitespace-nowrap border border-white/10">
+      <div className="bg-[#010615] text-white px-6 py-3 rounded-full shadow-2xl text-sm font-semibold whitespace-nowrap border border-[#0021F3]/40">
         {toastMsg}
       </div>
     </div>

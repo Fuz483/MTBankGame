@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HelpCircle, CheckCircle, XCircle, Trophy } from 'lucide-react';
+import { Circle as HelpCircle, CircleCheck as CheckCircle, Circle as XCircle, Trophy } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { QuizQuestion } from '../../../types';
 
@@ -66,26 +66,26 @@ export default function QuizTab() {
   if (done) {
     const totalEarned = score * 20;
     return (
-      <div className="bg-white rounded-2xl p-8 text-center">
-        <Trophy size={48} className="text-amber-500 mx-auto mb-4" />
-        <h2 className="font-bold text-2xl text-gray-900 mb-2">Викторина завершена!</h2>
-        <p className="text-gray-500 mb-4">Правильных ответов: <strong className="text-gray-900">{score}</strong> из {quizBank.length}</p>
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 inline-block">
-          <div className="text-amber-700 font-bold text-2xl">+{totalEarned} MTcoin</div>
-          <div className="text-amber-600 text-sm">начислено на счёт</div>
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+        <Trophy size={48} className="text-amber-400 mx-auto mb-4" />
+        <h2 className="font-bold text-2xl text-white mb-2">Викторина завершена!</h2>
+        <p className="text-white/60 mb-4">Правильных ответов: <strong className="text-white">{score}</strong> из {quizBank.length}</p>
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 mb-6 inline-block">
+          <div className="text-amber-400 font-bold text-2xl">+{totalEarned} MTcoin</div>
+          <div className="text-amber-400/70 text-sm">начислено на счёт</div>
         </div>
         <div className="mb-6">
           {quizBank.map((qb, i) => (
-            <div key={i} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0 text-sm">
+            <div key={i} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0 text-sm">
               {answers[i] === qb.correct
-                ? <CheckCircle size={16} className="text-green-500 flex-shrink-0" />
+                ? <CheckCircle size={16} className="text-emerald-400 flex-shrink-0" />
                 : <XCircle size={16} className="text-red-400 flex-shrink-0" />
               }
-              <span className="text-gray-600 text-left">{qb.q}</span>
+              <span className="text-white/60 text-left">{qb.q}</span>
             </div>
           ))}
         </div>
-        <button onClick={reset} className="bg-[#1e6fdf] text-white font-semibold px-8 py-3 rounded-2xl hover:bg-blue-700 transition-colors">
+        <button onClick={reset} className="bg-[#0021F3] text-white font-semibold px-8 py-3 rounded-2xl hover:bg-blue-700 transition-colors">
           Пройти заново
         </button>
       </div>
@@ -95,9 +95,9 @@ export default function QuizTab() {
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
-        <HelpCircle size={18} className="text-[#1e6fdf]" />
-        <h2 className="font-bold text-gray-800 text-lg">Недельная викторина</h2>
-        <span className="ml-auto text-sm text-gray-400">{idx + 1} / {quizBank.length}</span>
+        <HelpCircle size={18} className="text-[#0021F3]" />
+        <h2 className="font-bold text-white text-lg">Недельная викторина</h2>
+        <span className="ml-auto text-sm text-white/40">{idx + 1} / {quizBank.length}</span>
       </div>
 
       {/* Progress */}
@@ -106,25 +106,25 @@ export default function QuizTab() {
           <div
             key={i}
             className={`flex-1 h-1.5 rounded-full transition-all ${
-              i < idx ? (confirmed[i] && answers[i] === quizBank[i].correct ? 'bg-green-400' : 'bg-red-300')
-              : i === idx ? 'bg-[#1e6fdf]'
-              : 'bg-gray-200'
+              i < idx ? (confirmed[i] && answers[i] === quizBank[i].correct ? 'bg-emerald-400' : 'bg-red-400')
+              : i === idx ? 'bg-[#0021F3]'
+              : 'bg-white/10'
             }`}
           />
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-        <p className="text-lg font-semibold text-gray-900 mb-5">{q.q}</p>
+      <div className="bg-white/5 rounded-2xl p-6 border border-white/10 shadow-sm">
+        <p className="text-lg font-semibold text-white mb-5">{q.q}</p>
         <div className="space-y-3 mb-6">
           {q.opts.map((opt, i) => {
-            let cls = 'border-gray-200 text-gray-700 hover:border-[#1e6fdf] hover:bg-[#eef3fc] cursor-pointer';
-            if (answers[idx] === i && !isAnswered) cls = 'border-[#1e6fdf] bg-[#eef3fc] text-[#1e6fdf]';
-            if (isAnswered && i === q.correct) cls = 'border-green-400 bg-green-50 text-green-700 font-semibold';
-            if (isAnswered && answers[idx] === i && i !== q.correct) cls = 'border-red-300 bg-red-50 text-red-600';
+            let cls = 'border-white/10 text-white/60 hover:border-[#0021F3] hover:bg-[#0021F3]/10 cursor-pointer';
+            if (answers[idx] === i && !isAnswered) cls = 'border-[#0021F3] bg-[#0021F3]/10 text-[#0021F3]';
+            if (isAnswered && i === q.correct) cls = 'border-emerald-400 bg-emerald-500/10 text-emerald-400 font-semibold';
+            if (isAnswered && answers[idx] === i && i !== q.correct) cls = 'border-red-400 bg-red-500/10 text-red-400';
             return (
               <div key={i} onClick={() => selectAnswer(i)} className={`flex items-center gap-3 p-3.5 border rounded-xl transition-all duration-150 ${cls}`}>
-                {isAnswered && i === q.correct && <CheckCircle size={16} className="text-green-500 flex-shrink-0" />}
+                {isAnswered && i === q.correct && <CheckCircle size={16} className="text-emerald-400 flex-shrink-0" />}
                 {isAnswered && answers[idx] === i && i !== q.correct && <XCircle size={16} className="text-red-400 flex-shrink-0" />}
                 {(!isAnswered || (i !== q.correct && answers[idx] !== i)) && <div className="w-4 h-4 rounded-full border-2 border-current flex-shrink-0" />}
                 <span className="text-sm">{opt}</span>
@@ -134,28 +134,28 @@ export default function QuizTab() {
         </div>
 
         {isAnswered && (
-          <div className={`rounded-xl p-3 mb-4 text-sm ${isCorrect ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
+          <div className={`rounded-xl p-3 mb-4 text-sm ${isCorrect ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
             {isCorrect ? '✓ Верно! +20 MTcoin' : `✗ Правильный ответ: «${q.opts[q.correct]}»`}
           </div>
         )}
 
         <div className="flex justify-between">
-          <button onClick={() => idx > 0 && setIdx(i => i - 1)} disabled={idx === 0} className="px-5 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-500 disabled:opacity-40 hover:bg-gray-50 transition-colors">
+          <button onClick={() => idx > 0 && setIdx(i => i - 1)} disabled={idx === 0} className="px-5 py-2.5 border border-white/10 rounded-xl text-sm text-white/60 disabled:opacity-40 hover:bg-white/10 transition-colors">
             Назад
           </button>
           {!isAnswered ? (
-            <button onClick={confirmAnswer} disabled={answers[idx] === null} className="px-6 py-2.5 bg-[#1e6fdf] text-white font-semibold rounded-xl text-sm hover:bg-blue-700 disabled:opacity-40 transition-colors">
+            <button onClick={confirmAnswer} disabled={answers[idx] === null} className="px-6 py-2.5 bg-[#0021F3] text-white font-semibold rounded-xl text-sm hover:bg-blue-700 disabled:opacity-40 transition-colors">
               Ответить
             </button>
           ) : (
-            <button onClick={next} className="px-6 py-2.5 bg-[#1e6fdf] text-white font-semibold rounded-xl text-sm hover:bg-blue-700 transition-colors">
+            <button onClick={next} className="px-6 py-2.5 bg-[#0021F3] text-white font-semibold rounded-xl text-sm hover:bg-blue-700 transition-colors">
               {idx === quizBank.length - 1 ? 'Завершить' : 'Далее →'}
             </button>
           )}
         </div>
       </div>
 
-      <div className="mt-3 text-center text-sm text-gray-400">
+      <div className="mt-3 text-center text-sm text-white/40">
         Правильных: {score} · Начислено: {earned} MTcoin
       </div>
     </div>

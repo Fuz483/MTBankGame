@@ -28,9 +28,18 @@ export default function App() {
             color: MTBANK_THEME.textPrimary,
             margin: 0,
             textShadow: `0 0 40px ${MTBANK_THEME.accent}`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 16,
           }}
         >
-          🏦 MTBANK RACING
+          <svg viewBox="0 0 32 32" width="48" height="48">
+            <circle cx="16" cy="16" r="16" fill="#0021F3"/>
+            <path d="M7 21V11h3l3 5.5 3-5.5h3v10h-3V16l-2.2 4.5h-1.6L13 16v5H7z" fill="white"/>
+            <path d="M22 11h3v10h-3V11z" fill="#F84B36"/>
+          </svg>
+          MTBANK RACING
         </h1>
         <div
           style={{

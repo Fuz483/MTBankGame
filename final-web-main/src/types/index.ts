@@ -1,5 +1,5 @@
-export type NavTab = 'main' | 'innov' | 'cards' | 'payments' | 'more';
-export type SubTab = 'stocks' | 'deposits' | 'credits' | 'exchange' | 'piggy' | 'events' | 'intern' | 'quiz';
+export type NavTab = 'main' | 'innov' | 'cards' | 'payments' | 'more' | 'leaderboard';
+export type SubTab = 'stocks' | 'deposits' | 'credits' | 'exchange' | 'piggy' | 'events' | 'vacancies' | 'quiz';
 
 export interface ProductItem {
   name: string;

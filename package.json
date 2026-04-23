@@ -4,7 +4,7 @@
   "description": "Проект для хакатона от MTBank",
   "main": "index.js",
   "scripts": {
-  "build": "react-scripts build"
+  "build": "next build"
 },
   "keywords": [],
   "author": "",

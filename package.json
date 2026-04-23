@@ -1,15 +1,11 @@
 {
   "name": "project",
-  "version": "1.0.0",
-  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
-    "@netlify/plugin-nextjs": "^5.15.9",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest"

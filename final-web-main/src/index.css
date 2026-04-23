@@ -1,64 +1,49 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --mt-blue: #0021F3;
-  --mt-red: #F84B36;
-  --mt-dark: #010615;
-  --mt-navy: #071D49;
-  --mt-grey: #BBBBBB;
-  --mt-white: #FFFFFF;
+@layer base {
+  * {
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+}
+
+@layer utilities {
+  .animate-fadein {
+    animation: fadein 0.25s ease-out;
+  }
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @layer base {
   * {
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   }
-  body {
-    background: #f0f2f8;
-  }
 }
 
 @layer utilities {
   .animate-fadein {
-    animation: fadein 0.2s ease-out;
-  }
-  .animate-slide-up {
-    animation: slideUp 0.3s ease-out;
-  }
-  .animate-spin-slow {
-    animation: spin 3s linear infinite;
+    animation: fadein 0.25s ease-out;
   }
 }
 
 @keyframes fadein {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Roulette wheel animation */
-@keyframes roulette-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(var(--spin-angle, 720deg)); }
-}
-
-.roulette-wheel {
-  animation: roulette-spin var(--duration, 3s) cubic-bezier(0.17, 0.67, 0.12, 0.99) forwards;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0,33,243,0.3); border-radius: 4px; }

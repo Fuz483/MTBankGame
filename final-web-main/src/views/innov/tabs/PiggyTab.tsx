@@ -44,12 +44,12 @@ export default function PiggyTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-2">
-        <Target size={18} className="text-[#0021F3]" />
-        <h2 className="font-bold text-white text-lg">Интернет-копилка</h2>
+        <Target size={18} className="text-[#1e6fdf]" />
+        <h2 className="font-bold text-gray-800 text-lg">Интернет-копилка</h2>
       </div>
 
       {/* Goal card */}
-      <div className="bg-gradient-to-br from-[#0a2b4e] to-[#0021F3] rounded-3xl p-6 text-white">
+      <div className="bg-gradient-to-br from-[#0a2b4e] to-[#1e6fdf] rounded-3xl p-6 text-white">
         <div className="flex justify-between items-start mb-4">
           <div>
             <div className="text-white/70 text-sm mb-1">Цель накопления</div>
@@ -58,7 +58,7 @@ export default function PiggyTab() {
                 <input value={tmpGoalName} onChange={e => setTmpGoalName(e.target.value)} className="bg-white/10 border border-white/20 rounded-xl px-3 py-1.5 text-white text-sm w-48" />
                 <input value={tmpGoalAmt} onChange={e => setTmpGoalAmt(e.target.value)} type="number" className="bg-white/10 border border-white/20 rounded-xl px-3 py-1.5 text-white text-sm w-32" placeholder="Сумма BYN" />
                 <div className="flex gap-2">
-                  <button onClick={saveGoal} className="bg-white text-[#0021F3] font-semibold px-4 py-1 rounded-xl text-sm">Сохранить</button>
+                  <button onClick={saveGoal} className="bg-white text-[#1e6fdf] font-semibold px-4 py-1 rounded-xl text-sm">Сохранить</button>
                   <button onClick={() => setEditGoal(false)} className="text-white/60 text-sm">Отмена</button>
                 </div>
               </div>
@@ -88,33 +88,33 @@ export default function PiggyTab() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
-          <div className="text-xs text-white/40 mb-1">Доходность</div>
-          <div className="font-bold text-emerald-400">3% / мес</div>
+        <div className="bg-white border border-gray-100 rounded-2xl p-4 text-center">
+          <div className="text-xs text-gray-400 mb-1">Доходность</div>
+          <div className="font-bold text-green-600">3% / мес</div>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
-          <div className="text-xs text-white/40 mb-1">Начислено %</div>
-          <div className="font-bold text-[#0021F3]">{interest} BYN</div>
+        <div className="bg-white border border-gray-100 rounded-2xl p-4 text-center">
+          <div className="text-xs text-gray-400 mb-1">Начислено %</div>
+          <div className="font-bold text-[#1e6fdf]">{interest} BYN</div>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
-          <div className="text-xs text-white/40 mb-1">Пополнений</div>
-          <div className="font-bold text-white">{deposits}</div>
+        <div className="bg-white border border-gray-100 rounded-2xl p-4 text-center">
+          <div className="text-xs text-gray-400 mb-1">Пополнений</div>
+          <div className="font-bold text-gray-700">{deposits}</div>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-        <div className="flex items-center gap-2 mb-3 text-white font-semibold">
+      <div className="bg-white border border-gray-100 rounded-2xl p-4">
+        <div className="flex items-center gap-2 mb-3 text-gray-700 font-semibold">
           <TrendingUp size={16} />
           <span>Пополнение</span>
         </div>
         <div className="flex gap-2 flex-wrap mb-3">
           {[25, 50, 100, 200].map(a => (
-            <button key={a} onClick={() => add(a)} className="flex items-center gap-1 bg-[#0021F3]/10 text-[#0021F3] font-semibold px-4 py-2 rounded-xl hover:bg-[#0021F3]/20 transition-colors text-sm">
+            <button key={a} onClick={() => add(a)} className="flex items-center gap-1 bg-[#eef3fc] text-[#1e6fdf] font-semibold px-4 py-2 rounded-xl hover:bg-blue-100 transition-colors text-sm">
               <Plus size={14} /> {a} BYN
             </button>
           ))}
-          <button onClick={() => setShowCustom(!showCustom)} className="flex items-center gap-1 border border-white/10 text-white/60 font-semibold px-4 py-2 rounded-xl hover:bg-white/10 transition-colors text-sm">
+          <button onClick={() => setShowCustom(!showCustom)} className="flex items-center gap-1 border border-gray-200 text-gray-600 font-semibold px-4 py-2 rounded-xl hover:bg-gray-50 transition-colors text-sm">
             Другая сумма
           </button>
         </div>
@@ -125,17 +125,17 @@ export default function PiggyTab() {
               value={customAmt}
               onChange={e => setCustomAmt(e.target.value)}
               placeholder="Введите сумму BYN"
-              className="flex-1 bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-[#0021F3] rounded-xl px-3 py-2 text-sm outline-none"
+              className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm"
             />
             <button
               onClick={() => { const v = parseFloat(customAmt); if (v > 0) { add(v); setCustomAmt(''); setShowCustom(false); } else showToast('Введите корректную сумму'); }}
-              className="bg-[#0021F3] text-white font-semibold px-4 py-2 rounded-xl text-sm"
+              className="bg-[#1e6fdf] text-white font-semibold px-4 py-2 rounded-xl text-sm"
             >
               Добавить
             </button>
           </div>
         )}
-        <button onClick={withdraw} className="flex items-center gap-1.5 text-sm text-red-400 hover:text-red-300 transition-colors">
+        <button onClick={withdraw} className="flex items-center gap-1.5 text-sm text-red-500 hover:text-red-700 transition-colors">
           <Minus size={14} /> Досрочное снятие (комиссия 8%)
         </button>
       </div>

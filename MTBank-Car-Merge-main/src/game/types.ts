@@ -37,16 +37,16 @@ export const CAR_PROPERTIES: Record<number, CarProperties> = {
 };
 
 export const MTBANK_THEME = {
-  primary: '#071D49',
-  primaryLight: '#0021F3',
-  primaryDark: '#010615',
-  accent: '#0021F3',
-  gold: '#F84B36',
-  bgGradient: 'linear-gradient(135deg, #010615 0%, #071D49 50%, #010615 100%)',
-  cardBg: '#0a0f1e',
-  cardBorder: '#0021F3',
+  primary: '#0a4da4',
+  primaryLight: '#1e88e5',
+  primaryDark: '#002171',
+  accent: '#64b5f6',
+  gold: '#ffd54f',
+  bgGradient: 'linear-gradient(135deg, #001433 0%, #0a2a5e 50%, #001433 100%)',
+  cardBg: '#0d2b5e',
+  cardBorder: '#1e88e5',
   textPrimary: '#ffffff',
-  textSecondary: '#8899cc',
+  textSecondary: '#90caf9',
 };
 
 export function getLevelProgress(experience: number): LevelProgress {

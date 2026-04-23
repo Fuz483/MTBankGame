@@ -12,21 +12,15 @@ class BotCar:
         self.x, self.y = float(shared.START_X + ox), float(shared.START_Y + oy)
         self.angle, self.speed = 180.0, 0.0
         self.path_index = 0
-        self.lane_offset = random.uniform(-8.0, 8.0)
+
+        # Разброс по полосе движения минимизирован, чтобы боты не прыгали в стены
+        self.lane_offset = random.uniform(-4.0, 4.0)
 
         self.lap = 0
         self.passed_half = False
         self.finished = False
+        self.disqualified = False
         self.max_speed_limit = shared.MAX_SPEED
-
-    def update_logic(self, dt):
-        if self.finished:
-            self.speed *= 0.95
-            return
-
-        # Проверка чекпоинта (середина пути)
-        if not self.passed_half and self.path_index > len(shared.BOT_WAYPOINTS) * 8:
-            self.passed_half = True
 
 
 def create_bots(count: int = 4) -> List[BotCar]:

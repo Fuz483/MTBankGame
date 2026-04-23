@@ -15,8 +15,8 @@ from typing import Optional
 _cache: dict[str, pygame.Surface] = {}
 
 # Desired rendered size of the car sprite (pixels)
-CAR_W = 36
-CAR_H = 56
+CAR_W = 54*5
+CAR_H = 84*5
 
 
 def _make_default_skin(color: tuple = (220, 40, 40)) -> pygame.Surface:
@@ -119,3 +119,24 @@ def resolve_skin_path() -> Optional[str]:
                 return path
             print(f"[skin_loader] Skin file not found: {path}")
     return None
+
+
+def list_numbered_asset_skins(assets_dir: str = "assets") -> list[str]:
+    """
+    Return asset skin paths where filename is a plain number, e.g. 1.png, 12.png.
+    Sorted by numeric index.
+    """
+    if not os.path.isdir(assets_dir):
+        return []
+
+    numbered = []
+    for name in os.listdir(assets_dir):
+        base, ext = os.path.splitext(name)
+        if not base.isdigit():
+            continue
+        if ext.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
+            continue
+        numbered.append((int(base), os.path.join(assets_dir, name)))
+
+    numbered.sort(key=lambda item: item[0])
+    return [path for _, path in numbered]

@@ -1,222 +1,90 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-
-# C extensions
-*.c
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# pipenv
-Pipfile.lock
-
-# poetry
-poetry.lock
-
-# pdm
-.pdm.toml
-
-# PEP 582
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# --- Операционные системы ---
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
 
-# Game-specific (pygame, assets, skins, logs)
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.bmp
-*.tga
-*.xcf
-
-# But keep example/default skin (optional — раскомментируй если нужно сохранить образец)
-# !assets/default_car.png
-
-# Skins uploaded by users (не храним в репозитории)
-skins/
-user_skins/
-custom_skins/
-
-# Saved game states
-saves/
-*.save
-*.dat
-
-# Logs from server
-server_logs/
-*.log
-logs/
-
-# Database (если будете сохранять состояния)
-*.db
-*.sqlite
-*.sqlite3
-
-# Web assets built
-web_build/
-static/
-dist/
-
-# Pygbag build output
-web/
-build/
-build_web/
-
-# Temporary network files
-*.pcap
-*.pcapng
-
-# Local configuration (не хранить пароли, порты, ключи)
-config_local.py
-secrets.py
-.env.local
-.env.production
-
-# OS junk files
+# Windows
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
-# Backup files
-*.bak
-*.backup
-*.old
-*.orig
+# Linux
+*~
+.directory
 
-# Large files (укажи свои большие файлы, если есть)
-*.mp4
-*.avi
-*.mov
-*.wav
-*.ogg
-*.mp3
-*.psd
-*.blend
+# --- Среда разработки (IDE) ---
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains (PyCharm, IntelliJ, WebStorm)
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+
+# --- Секреты и переменные окружения ---
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets/
+config/secrets.yml
+
+# --- Логи и Базы данных ---
+*.log
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# --- Python (если не нужен, удали блок) ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+
+# --- Node.js / JavaScript (если не нужен, удали блок) ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json
+yarn.lock
+
+# --- Временные файлы и Кэш ---
+*.tmp
+*.temp
+*.cache
+.cache/
+
+# --- Сжатые файлы (обычно не хранят в репозитории) ---
 *.zip
 *.tar.gz
 *.rar
+*.7z
+
+# --- Прочее ---
+# Игнорировать все папки с названием temp или tmp
+temp/
+tmp/

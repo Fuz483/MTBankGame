@@ -1,4 +1,4 @@
-import os, asyncio, random, pygame
+import os, asyncio, random, pygame, math
 import shared
 from shared import *
 from skin_loader import get_skin, list_numbered_asset_skins
@@ -48,27 +48,14 @@ class FixedTrackMap:
         pygame.display.flip()
 
         names = ["1_top_left.png", "2_top_right.png", "3_bottom_left.png", "4_bottom_right.png"]
-        raw = [pygame.image.load(os.path.join("assets", n)).convert_alpha() for n in names]
-        self.orig_w, self.orig_h = raw[0].get_size()
+        # Сохраняем оригиналы картинок, чтобы потом быстро проверять цвета пикселей
+        self.raw = [pygame.image.load(os.path.join("assets", n)).convert_alpha() for n in names]
+        self.orig_w, self.orig_h = self.raw[0].get_size()
         self.sw, self.sh = self.orig_w * SCALE_FACTOR, self.orig_h * SCALE_FACTOR
-        self.assets = [pygame.transform.smoothscale(img, (self.sw, self.sh)) for img in raw]
+        self.assets = [pygame.transform.smoothscale(img, (self.sw, self.sh)) for img in self.raw]
 
         shared.WORLD_WIDTH = self.sw * 2
         shared.WORLD_HEIGHT = self.sh * 2
-
-        self.masks = []
-        for img in raw:
-            m = []
-            px = pygame.surfarray.pixels3d(img)
-            for y in range(self.orig_h):
-                row = bytearray(self.orig_w)
-                for x in range(self.orig_w):
-                    r, g, b = map(int, px[x][y])
-                    is_barrier = (g > r + 30) or (b > r + 40 and b > g + 20) or (r > 200 and g > 200 and b > 200)
-                    row[x] = 0 if is_barrier else 1
-                m.append(row)
-            self.masks.append(m)
-            del px
 
         if not shared.BOT_WAYPOINTS:
             shared.BOT_WAYPOINTS = [(START_X, START_Y)]
@@ -78,9 +65,26 @@ class FixedTrackMap:
         x1, y1, x2, y2 = FINISH_RECT
         if x1 <= wx <= x2 and y1 <= wy <= y2: return False
         if not (0 <= wx < shared.WORLD_WIDTH and 0 <= wy < shared.WORLD_HEIGHT): return True
+
+        # Находим индекс картинки (0-3) в зависимости от координат
         idx = int(wx // self.sw) + int(wy // self.sh) * 2
-        lx, ly = int((wx % self.sw) // SCALE_FACTOR), int((wy % self.sh) // SCALE_FACTOR)
-        return self.masks[idx][ly][lx] == 0
+
+        # Находим пиксель на оригинальной не увеличенной текстуре
+        lx = int((wx % self.sw) / SCALE_FACTOR)
+        ly = int((wy % self.sh) / SCALE_FACTOR)
+
+        # Защита от выхода за пределы массива
+        lx = max(0, min(self.orig_w - 1, lx))
+        ly = max(0, min(self.orig_h - 1, ly))
+
+        # Проверяем цвет пикселя "на лету"
+        color = self.raw[idx].get_at((lx, ly))
+        r, g, b = color[0], color[1], color[2]
+
+        # ВОЗВРАЩЕНО УСЛОВИЕ ДЛЯ БЕЛЫХ ЛИНИЙ!
+        # r > 200, g > 200, b > 200 — дисквалификация на разметке
+        is_barrier = (g > r + 30) or (b > r + 40 and b > g + 20) or (r > 200 and g > 200 and b > 200)
+        return is_barrier
 
     def draw(self, surface, cx, cy):
         pos = [(0, 0), (self.sw, 0), (0, self.sh), (self.sw, self.sh)]
@@ -191,7 +195,6 @@ class OfflineWorld:
         pts = []
         all_cars_phys = []
 
-        # Собираем все активные объекты
         if not getattr(player, 'disqualified', False):
             all_cars_phys.append(player)
 
@@ -216,7 +219,6 @@ class OfflineWorld:
                 dist = math.hypot(dx, dy)
 
                 if dist < min_dist:
-                    # ЖЕСТКАЯ КОЛЛИЗИЯ (выталкивание из текстур)
                     if dist == 0: dist = 0.01
                     overlap = min_dist - dist
                     nx, ny = dx / dist, dy / dist
@@ -240,26 +242,15 @@ class OfflineWorld:
                     c2.speed *= 0.8
                     pts.append(((c1_x + c2_x) / 2, (c1_y + c2_y) / 2))
 
-                # НОВАЯ ФИШКА: Радар препятствий (до 120 пикселей впереди)
                 elif dist < 120:
                     nx, ny = dx / dist, dy / dist
-
-                    # Проверяем, куда смотрит c1
                     dir1_x, dir1_y = math.cos(math.radians(c1.angle)), -math.sin(math.radians(c1.angle))
-                    dot1 = dir1_x * nx + dir1_y * ny  # > 0.8 значит цель почти прямо по курсу
-
-                    # Проверяем, куда смотрит c2
+                    dot1 = dir1_x * nx + dir1_y * ny
                     dir2_x, dir2_y = math.cos(math.radians(c2.angle)), -math.sin(math.radians(c2.angle))
                     dot2 = dir2_x * (-nx) + dir2_y * (-ny)
 
-                    # Если c1 - это БОТ (нет 'world_x') и впереди препятствие: ТОРМОЗИТ
-                    if dot1 > 0.8 and not hasattr(c1, 'world_x'):
-                        c1.speed *= 0.88
-
-                        # Если c2 - это БОТ и впереди препятствие: ТОРМОЗИТ
-                    if dot2 > 0.8 and not hasattr(c2, 'world_x'):
-                        c2.speed *= 0.88
-
+                    if dot1 > 0.8 and not hasattr(c1, 'world_x'): c1.speed *= 0.88
+                    if dot2 > 0.8 and not hasattr(c2, 'world_x'): c2.speed *= 0.88
         return pts
 
 
@@ -284,7 +275,6 @@ class StartLights:
     def __init__(self):
         self.timer = 0
         self.state = 0
-        self.font = pygame.font.SysFont("Arial", 120, bold=True)
 
     def update(self, dt):
         self.timer += dt
@@ -304,7 +294,6 @@ class StartLights:
         if self.state >= 2: colors[1] = (255, 0, 0)
         if self.state >= 3: colors[2] = (255, 0, 0)
         if self.state == 4: colors = [(0, 255, 0)] * 3
-
         for i, color in enumerate(colors):
             pygame.draw.circle(surface, (20, 20, 20), (WIDTH // 2 - 100 + i * 100, 100), 45)
             pygame.draw.circle(surface, color, (WIDTH // 2 - 100 + i * 100, 100), 40)
@@ -322,33 +311,50 @@ async def main():
     world = OfflineWorld(track, 7)
 
     skins = list_numbered_asset_skins()
-    p_num = int(os.path.basename(skins[0]).split('.')[0]) if skins else 1
+
+    # === ЧИТАЕМ ВЫБРАННУЮ МАШИНУ ИЗ БРАУЗЕРА (LOCALSTORAGE) ===
+    active_car_num = 1
+    try:
+        import sys
+        if sys.platform == 'emscripten':
+            from platform import window
+            val = window.localStorage.getItem('mtbank_shared_active_car')
+            if val:
+                mapping = {'F1-Scorpion': 1, 'F1-Viper': 2, 'F1-Thunder': 3, 'F1-Nova': 4, 'F1-Phantom': 5,
+                           'F1-Legend': 6}
+                active_car_num = mapping.get(val, 1)
+    except Exception as e:
+        print("Error reading localStorage:", e)
+
+    p_num = active_car_num
+
+    # Ищем нужный скин в загруженных файлах
+    target_skin_path = None
+    for s in skins:
+        if os.path.basename(s) == f"{p_num}.png":
+            target_skin_path = s
+            break
+
+    # Если почему-то не нашли, берем первый попавшийся
+    if not target_skin_path and skins:
+        target_skin_path = skins[0]
 
     player_offset_idx = min(7, len(shared.BOT_SPAWN_OFFSETS) - 1)
     px_off, py_off = shared.BOT_SPAWN_OFFSETS[player_offset_idx]
-    player = PlayerCar(START_X + px_off, START_Y + py_off, get_skin(skins[0] if skins else None), p_num)
+    player = PlayerCar(START_X + px_off, START_Y + py_off, get_skin(target_skin_path), p_num)
 
     bot_skins = []
     for idx, b in enumerate(world.bots):
         box_off, boy_off = shared.BOT_SPAWN_OFFSETS[idx % len(shared.BOT_SPAWN_OFFSETS)]
-        b.x = START_X + box_off
-        b.y = START_Y + boy_off
-
+        b.x, b.y = START_X + box_off, START_Y + boy_off
         s_idx = (idx + 1) % len(skins) if skins else 0
         b_path = skins[s_idx] if skins else None
         bot_skins.append(get_skin(b_path))
-
         bot_num = int(os.path.basename(b_path).split('.')[0]) if b_path else 1
-        # ИСПРАВЛЕНО: Резко снижена максимальная скорость ботов по отношению к игроку
         b.max_speed_limit = (MAX_SPEED + bot_num)
 
     lights = StartLights()
-    start_timer = 0
-    finish_order = []
-    sparks = []
-    running = True
-
-    clock.tick()
+    start_timer, finish_order, sparks, running = 0, [], [], True
 
     while running:
         dt = clock.tick(FPS) / 1000.0
@@ -372,17 +378,21 @@ async def main():
             if not player.passed_half and player.world_x < shared.WORLD_WIDTH * 0.4: player.passed_half = True
             x1, y1, x2, y2 = FINISH_RECT
             if player.passed_half and x1 <= player.world_x <= x2 and y1 <= player.world_y <= y2:
-                player.lap += 1;
+                player.lap += 1
                 player.passed_half = False
-                if player.lap >= TOTAL_LAPS: player.finished = True; finish_order.append("Player")
+                if player.lap >= TOTAL_LAPS:
+                    player.finished = True
+                    finish_order.append("Player")
 
         for b in world.bots:
             if not getattr(b, 'finished', False) and not getattr(b, 'disqualified', False):
                 if not getattr(b, 'passed_half', False) and b.x < shared.WORLD_WIDTH * 0.4: b.passed_half = True
                 if getattr(b, 'passed_half', False) and x1 <= b.x <= x2 and y1 <= b.y <= y2:
-                    b.lap += 1;
+                    b.lap += 1
                     b.passed_half = False
-                    if b.lap >= TOTAL_LAPS: b.finished = True; finish_order.append(f"Bot{b.bot_id}")
+                    if b.lap >= TOTAL_LAPS:
+                        b.finished = True
+                        finish_order.append(f"Bot{b.bot_id}")
 
         cx = clamp(player.world_x - WIDTH // 2, 0, shared.WORLD_WIDTH - WIDTH)
         cy = clamp(player.world_y - HEIGHT // 2, 0, shared.WORLD_HEIGHT - HEIGHT)
@@ -423,5 +433,7 @@ async def main():
 
     pygame.quit()
 
+
+if __name__ == "__main__": asyncio.run(main())
 
 if __name__ == "__main__": asyncio.run(main())

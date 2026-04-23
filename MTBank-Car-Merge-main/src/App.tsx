@@ -56,7 +56,7 @@ export default function App() {
       </div>
 
       <div style={{ marginTop: 24, fontSize: 11, color: MTBANK_THEME.textSecondary, opacity: 0.5 }}>
-        ⚡ Merge cars to unlock new models • Buy exclusive cars in SHOP
+        ⚡ Merge cars to unlock new models
       </div>
     </div>
   );

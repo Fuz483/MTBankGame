@@ -1,12 +1,14 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 
-const ALL_MODELS = ['F1-Scorpion', 'F1-Viper', 'F1-Thunder', 'F1-Nova', 'F1-Phantom'];
+const ALL_MODELS = ['F1-Scorpion', 'F1-Viper', 'F1-Thunder', 'F1-Nova', 'F1-Phantom', 'F1-Legend'];
 
 interface AppContextType {
   mtCoins: number;
   attempts: number;
   ownedCars: string[];
   uniqueCars: number;
+  activeCar: string;
+  setActiveCar: (car: string) => void;
   toastMsg: string;
   gameModalOpen: boolean;
   addCoins: (amount: number) => void;
@@ -23,12 +25,47 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [mtCoins, setMtCoins] = useState(1450);
+  const [mtCoins, setMtCoins] = useState(() => {
+    const saved = localStorage.getItem('mtbank_shared_coins');
+    return saved ? parseInt(saved, 10) : 1450;
+  });
+
+  const [ownedCars, setOwnedCars] = useState<string[]>(() => {
+    const savedGarage = localStorage.getItem('mtbank_shared_garage');
+    return savedGarage ? JSON.parse(savedGarage) : ['F1-Scorpion', 'F1-Viper', 'F1-Scorpion'];
+  });
+
+  // НОВОЕ: Выбранная машина
+  const [activeCar, setActiveCar] = useState(() => {
+    return localStorage.getItem('mtbank_shared_active_car') || 'F1-Scorpion';
+  });
+
   const [attempts, setAttempts] = useState(3);
-  const [ownedCars, setOwnedCars] = useState(['F1-Scorpion', 'F1-Viper', 'F1-Scorpion']);
   const [toastMsg, setToastMsg] = useState('');
   const [gameModalOpen, setGameModalOpen] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    localStorage.setItem('mtbank_shared_coins', mtCoins.toString());
+  }, [mtCoins]);
+
+  useEffect(() => {
+    localStorage.setItem('mtbank_shared_garage', JSON.stringify(ownedCars));
+  }, [ownedCars]);
+
+  useEffect(() => {
+    localStorage.setItem('mtbank_shared_active_car', activeCar);
+  }, [activeCar]);
+
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key === 'mtbank_shared_coins' && e.newValue) setMtCoins(parseInt(e.newValue, 10));
+      if (e.key === 'mtbank_shared_garage' && e.newValue) setOwnedCars(JSON.parse(e.newValue));
+      if (e.key === 'mtbank_shared_active_car' && e.newValue) setActiveCar(e.newValue);
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
 
   const showToast = useCallback((msg: string) => {
     setToastMsg(msg);
@@ -38,15 +75,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addCoins = useCallback((amount: number) => {
     setMtCoins(prev => prev + amount);
-    showToast(`+${amount} MTcoin`);
+    if (amount > 0) showToast(`+${amount} MTcoin`);
+  }, [showToast]);
+
+  const addCar = useCallback((car: string) => {
+    setOwnedCars(prev => {
+      if (prev.length >= 16) {
+        setTimeout(() => {
+          setMtCoins(c => c + 200);
+          showToast('Гараж полон! Болид конвертирован в 200 MTC');
+        }, 50);
+        return prev;
+      }
+      return [...prev, car];
+    });
   }, [showToast]);
 
   const decrementAttempts = useCallback(() => {
     setAttempts(prev => Math.max(0, prev - 1));
-  }, []);
-
-  const addCar = useCallback((car: string) => {
-    setOwnedCars(prev => [...prev, car]);
   }, []);
 
   const mergeCars = useCallback(() => {
@@ -55,12 +101,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const newGarage: string[] = [];
     let merged = false;
     let earned = 0;
+
     for (const [car, cnt] of counts.entries()) {
       if (cnt >= 2) {
         const pairs = Math.floor(cnt / 2);
         for (let i = 0; i < pairs; i++) {
           const idx = ALL_MODELS.indexOf(car);
-          newGarage.push(ALL_MODELS[(idx + 1) % ALL_MODELS.length]);
+          const nextIdx = Math.min(idx + 1, ALL_MODELS.length - 1);
+          newGarage.push(ALL_MODELS[nextIdx]);
           earned += 70;
         }
         if (cnt % 2 === 1) newGarage.push(car);
@@ -69,6 +117,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         newGarage.push(car);
       }
     }
+
     if (merged) {
       setOwnedCars(newGarage);
       setMtCoins(prev => prev + earned);
@@ -79,8 +128,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [ownedCars, showToast]);
 
   const inviteFriend = useCallback(() => {
+    window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
     setMtCoins(prev => prev + 100);
-    showToast('Друг приглашён! +100 MTcoin');
+    showToast('Приглашение отправлено! +100 MTcoin');
   }, [showToast]);
 
   const openGame = useCallback(() => {
@@ -88,21 +138,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       showToast('Нет попыток! Восстановление через 20 сек.');
       return;
     }
-    setGameModalOpen(true);
-  }, [attempts, showToast]);
+    decrementAttempts();
+    window.open('http://localhost:8000', '_blank');
+  }, [attempts, decrementAttempts, showToast]);
 
-  const closeGame = useCallback(() => {
-    setGameModalOpen(false);
-  }, []);
+  const closeGame = useCallback(() => setGameModalOpen(false), []);
 
-  // Attempt recovery timer
   useEffect(() => {
     const interval = setInterval(() => {
       setAttempts(prev => {
-        if (prev < 5) {
-          showToast('+1 попытка гонки восстановлена');
-          return prev + 1;
-        }
+        if (prev < 5) { showToast('+1 попытка восстановлена'); return prev + 1; }
         return prev;
       });
     }, 22000);
@@ -113,10 +158,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider value={{
       mtCoins, attempts, ownedCars,
       uniqueCars: new Set(ownedCars).size,
-      toastMsg, gameModalOpen,
-      addCoins, decrementAttempts, addCar,
-      mergeCars, inviteFriend, showToast,
-      openGame, closeGame,
+      activeCar, setActiveCar,
+      toastMsg, gameModalOpen, addCoins, decrementAttempts, addCar,
+      mergeCars, inviteFriend, showToast, openGame, closeGame,
       canStartRace: attempts > 0,
     }}>
       {children}

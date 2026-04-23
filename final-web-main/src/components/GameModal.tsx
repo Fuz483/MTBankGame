@@ -1,8 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 
-const ALL_MODELS = ['F1-Scorpion', 'F1-Viper', 'F1-Thunder', 'F1-Nova', 'F1-Phantom'];
-
 interface GS {
   active: boolean;
   playerX: number;
@@ -16,11 +14,12 @@ interface GS {
 function drawFrame(ctx: CanvasRenderingContext2D, w: number, h: number, gs: GS) {
   ctx.fillStyle = '#0c2a44'; ctx.fillRect(0, 0, w, h);
   ctx.fillStyle = '#d4af37';
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 15; i++) {
     const y = (gs.progress * 450 + i * 55) % h;
     ctx.fillRect(0, y, w, 3);
   }
   ctx.fillStyle = '#2f3e5e'; ctx.fillRect(w * 0.12, 0, w * 0.76, h);
+
   for (const ai of gs.aiCars) {
     const y = (ai.prog - gs.progress) * 480 + h * 0.65;
     if (y > 0 && y < h - 30) {
@@ -31,6 +30,7 @@ function drawFrame(ctx: CanvasRenderingContext2D, w: number, h: number, gs: GS) 
   const py = h * 0.72;
   ctx.fillStyle = '#f5a623'; ctx.fillRect(w * (gs.playerX - 0.06), py - 12, w * 0.12, 28);
   ctx.fillStyle = '#2c3e50'; ctx.fillRect(w * (gs.playerX - 0.04), py - 4, w * 0.08, 14);
+
   ctx.fillStyle = 'white'; ctx.font = 'bold 16px Inter';
   ctx.fillText(`${Math.floor(gs.speed)} km/h`, w - 100, 38);
   const pct = Math.floor(gs.progress * 100);
@@ -42,7 +42,6 @@ export default function GameModal() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gs = useRef<GS>({ active: false, playerX: 0.5, aiCars: [], progress: 0, speed: 0, keys: {}, animId: 0 });
 
-  // callbacks via refs to avoid stale closures in rAF
   const cbRef = useRef({ addCoins, decrementAttempts, addCar, showToast, closeGame });
   cbRef.current = { addCoins, decrementAttempts, addCar, showToast, closeGame };
 
@@ -69,10 +68,11 @@ export default function GameModal() {
       gs.current = {
         active: true, playerX: 0.5, progress: 0, speed: 0, keys: {},
         animId: 0,
-        aiCars: Array.from({ length: 4 }, (_, i) => ({
-          x: 0.2 + Math.random() * 0.6,
-          prog: 0.1 + i * 0.12,
-          baseSpd: 120 + Math.random() * 70,
+        // ТЕПЕРЬ 7 БОТОВ + 1 ИГРОК = 8 УЧАСТНИКОВ
+        aiCars: Array.from({ length: 7 }, (_, i) => ({
+          x: 0.15 + Math.random() * 0.7,
+          prog: 0.05 + i * 0.13,
+          baseSpd: 110 + Math.random() * 90,
         })),
       };
       const loop = () => {
@@ -83,6 +83,7 @@ export default function GameModal() {
         g.playerX = Math.min(Math.max(g.playerX, 0.12), 0.88);
         g.speed += 3.4; if (g.speed > 270) g.speed = 270;
         g.progress += g.speed * 0.0045;
+
         for (const ai of g.aiCars) {
           ai.prog += ai.baseSpd * 0.0042;
           if (ai.prog > g.progress + 0.25) ai.prog = g.progress - 0.1;
@@ -91,16 +92,24 @@ export default function GameModal() {
             cbRef.current.showToast('Столкновение!');
           }
         }
+
         if (g.progress >= 1.0) {
           g.active = false;
           cbRef.current.decrementAttempts();
+
           let pos = 1;
           for (const ai of g.aiCars) if (ai.prog > g.progress) pos++;
-          const earn = 80 + (5 - pos) * 15;
-          const car = ALL_MODELS[Math.floor(Math.random() * ALL_MODELS.length)];
+
+          // НОВЫЕ НАГРАДЫ ПО ВАШЕМУ ЗАПРОСУ
+          const rewards = [25, 18, 15, 12, 10, 8, 6, 4];
+          const earn = rewards[pos - 1] || 4;
+
+          // ВСЕГДА САМАЯ НИЗКАЯ МАШИНА
+          const car = 'F1-Scorpion';
+
           cbRef.current.addCar(car);
           cbRef.current.addCoins(earn);
-          cbRef.current.showToast(`Финиш! ${pos} место! +${earn} MTcoin · ${car}`);
+          cbRef.current.showToast(`Финиш! ${pos} место! +${earn} MTcoin · Получен болид 1 уровня!`);
           cbRef.current.closeGame();
           return;
         }
@@ -128,7 +137,7 @@ export default function GameModal() {
         <div className="flex justify-between items-center mt-4 text-white">
           <span className="text-sm text-white/60">Управление: ← → стрелки | Избегайте оранжевых болидов</span>
           <button onClick={handleClose} className="bg-[#f5a623] text-[#0a2b4e] font-bold px-6 py-2 rounded-full hover:bg-amber-400 transition-colors">
-            Завершить
+            Сдаться
           </button>
         </div>
       </div>

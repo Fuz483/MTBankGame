@@ -17,6 +17,35 @@ export function useGame() {
     saveGame(state);
   }, [state]);
 
+  // СЛУШАЕМ ГЛАВНОЕ МЕНЮ (Монеты и Рулетки/Гонки)
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key === 'mtbank_shared_coins' && e.newValue) {
+        setState(s => ({ ...s, mtCoins: parseInt(e.newValue!, 10) }));
+      }
+      if (e.key === 'mtbank_shared_garage' && e.newValue) {
+        const cars: string[] = JSON.parse(e.newValue);
+        const ALL_MODELS = ['F1-Scorpion', 'F1-Viper', 'F1-Thunder', 'F1-Nova', 'F1-Phantom', 'F1-Legend'];
+        const nameToLevel = (name: string) => { const idx = ALL_MODELS.indexOf(name); return idx >= 0 ? idx + 1 : 1; };
+
+        // Мгновенно перестраиваем сетку
+        const newGrid = Array.from({ length: 4 }, () => Array(4).fill(0));
+        let i = 0;
+        for(let r=0; r<4; r++) {
+          for(let c=0; c<4; c++) {
+            if(i < cars.length) {
+              newGrid[r][c] = nameToLevel(cars[i]);
+              i++;
+            }
+          }
+        }
+        setState(s => ({ ...s, grid: newGrid }));
+      }
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
+
   const pushMessage = useCallback((text: string) => {
     const id = Date.now() + Math.random();
     setMessages(prev => [...prev, { text, id }]);
@@ -70,16 +99,16 @@ export function useGame() {
   }, [state, selected, pushMessage]);
 
   const handleReset = useCallback(() => {
-    const fresh: GameState = { 
-      grid: Array.from({ length: 4 }, () => Array(4).fill(0)), 
+    const fresh: GameState = {
+      grid: Array.from({ length: 4 }, () => Array(4).fill(0)),
       experience: 0,
-      mtCoins: 100,
+      mtCoins: state.mtCoins,
       unlockedCars: [1]
     };
     setState(fresh);
     setSelected(null);
     pushMessage('🔄 Game reset!');
-  }, [pushMessage]);
+  }, [state.mtCoins, pushMessage]);
 
   const handleStateChange = useCallback((newState: GameState) => {
     setState(newState);
